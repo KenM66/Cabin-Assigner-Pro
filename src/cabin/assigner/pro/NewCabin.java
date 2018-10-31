@@ -186,6 +186,7 @@ public class NewCabin extends JPanel {
 	     for(JRadioButton rb: rdbtnList){
 	    	 rb.setBackground(Color.GRAY);
 	    	 rb.setForeground(Color.WHITE);
+                                       rb.setFont(new Font("Tahome", Font.BOLD, 12));
 	     }
 	     
 	     GridBagConstraints c7= new GridBagConstraints();

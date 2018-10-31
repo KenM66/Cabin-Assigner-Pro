@@ -36,6 +36,8 @@ import java.awt.Color;
 import java.awt.event.ActionListener;
 import java.time.LocalDate;
 import java.awt.event.ActionEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 public class EditDeleteCamper extends JPanel{
 	
@@ -261,6 +263,11 @@ public class EditDeleteCamper extends JPanel{
 				  
 			  	}
 			  });
+                                         addMouseListener(new MouseAdapter() { 
+                                            public void mousePressed(MouseEvent me) { 
+                                                               Home.fileChanged=true;
+                                             } 
+                                                }); 
 	}
 	
 	private void editCamperWindow(Camper camper){
@@ -986,8 +993,16 @@ public class EditDeleteCamper extends JPanel{
 				camper.setAllergies(textFieldAllergies.getText());
 				camper.setDietaryPreferences(textFieldDietaryPreferences.getText());
 				camper.setSpecialNeeds(textFieldSpecialNeeds.getText());
-				camper.setSpecialRequest(textFieldSpecialRequest.getText());
-				camper.setEmergencyContact1(textFieldContactName1.getText());
+				
+                                                                            
+                                                                            if(chckbxSpecialRequest.isSelected()==true) {
+                                                                            camper.setSpecialRequest(textFieldSpecialRequest.getText());}
+                                                                            else{
+                                                                                camper.setSpecialRequest(null);
+                                                                            }
+                                                                               
+                                
+                                                                             camper.setEmergencyContact1(textFieldContactName1.getText());
 				camper.setEmergencyContact2(textFieldContactName2.getText());
 				camper.setEmergencyContactRelationship1(textFieldContactRelationship1.getText());
 				camper.setEmergencyContactRelationship2(textFieldContactRelationship2.getText());

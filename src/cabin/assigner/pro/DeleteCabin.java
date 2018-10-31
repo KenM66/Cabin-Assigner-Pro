@@ -32,6 +32,8 @@ import javax.swing.border.EmptyBorder;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 public class DeleteCabin extends JFrame {
 	
@@ -51,7 +53,7 @@ public class DeleteCabin extends JFrame {
 	
 	public DeleteCabin() {
 		
-		super("DELETE CABIN");
+		super("MODIFY CABIN");
 		ArrayList<JButton>buttonList=new ArrayList<JButton>();
 		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -533,5 +535,10 @@ else{
 				editNumberOfCounselors();
 			}
 		});
+                                      addMouseListener(new MouseAdapter() { 
+                                            public void mousePressed(MouseEvent me) { 
+                                                               Home.fileChanged=true;
+                                             } 
+                                                }); 
 	}
 }

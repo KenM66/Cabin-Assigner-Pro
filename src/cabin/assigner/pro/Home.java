@@ -114,8 +114,8 @@ public class Home extends JPanel implements Serializable
          //  licenseKeyGUI = new LicenseKeyGUI(this, true);
     	
     	//setTestCampers();
-    	//setTestCabins();
-    	//setTestDate();
+    	setTestCabins();
+    	setTestDate();
     	
     	//setTestCounselors();
         
@@ -489,6 +489,7 @@ public void editOrDeleteCounselor(){
 public void assignCabins(){
      
         AssignToCabin cabin1= new AssignToCabin();
+      
         cabin1.setVisible(true);
         AssignToCabin.showCabinAssignments();
       

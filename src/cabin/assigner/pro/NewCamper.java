@@ -677,7 +677,11 @@ public class NewCamper extends JPanel implements Serializable{
 		camper1.setAllergies(textFieldAllergies.getText());
 		camper1.setDietaryPreferences(textFieldDietaryPreferences.getText());
 		camper1.setSpecialNeeds(textFieldSpecialNeeds.getText());
-		camper1.setSpecialRequest(textFieldSpecialRequest.getText());
+		  if(chckbxSpecialRequest.isSelected()==true) {
+                                                                            camper1.setSpecialRequest(textFieldSpecialRequest.getText());}
+                                                                            else{
+                                                                                camper1.setSpecialRequest(null);
+                                                                            }
 		camper1.setEmergencyContact1(textFieldContactName1.getText());
 		camper1.setEmergencyContact2(textFieldContactName2.getText());
 		camper1.setEmergencyContactRelationship1(textFieldContactRelationship1.getText());

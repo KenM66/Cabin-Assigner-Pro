@@ -93,7 +93,7 @@ public class AssignToCabin extends JPanel implements Serializable {
     private JButton btnAutoAssign;
     private JButton btnClear;
     
-      boolean added=true;
+      boolean added;
   
     
   
@@ -574,6 +574,7 @@ public class AssignToCabin extends JPanel implements Serializable {
           int age= camper.calculateAge(camper.dateOfBirth, CampInformation.dateOfCamp);
           int min= cabin.getAgeMin();
           int max= cabin.getAgeMax();
+          added=true;   //Only relevant with auto-assign
 			
           cabinMap.remove(null); //Removes null key from map
 				//NewCabin.cabinList2.remove(cabin);
@@ -596,6 +597,8 @@ public class AssignToCabin extends JPanel implements Serializable {
 									" in this cabin?");
 					
 					if(response==JOptionPane.NO_OPTION){
+                                                                                                                   added=false;
+                      //In this method, the added feature is only relevant when using the auto-assign feature.  If the user opts not to assign a camper that is flagged, the auto-assign automatically terminates. 
 						return;
 					}}
                                                                                              
@@ -625,14 +628,12 @@ public class AssignToCabin extends JPanel implements Serializable {
                                                                                                                    NewCabin.cabinList2.remove(cabin);
 							                                                            }
                                                                                                                                        else{
+                                                                                                                                                added=false;
                                                                                                                                                 return;
                                                                                                                                               }
                                                                                                                                            }
 					
-				                                                        
-				
-			                                                        
-                                                                                                                                         else{
+				                                                                  else{
                                                                                                                                                getModelForCabin(cabin).addElement(camper);
 					                                               getOrCreateGroup(cabin).add(camper);
 						                           campersModel.removeElement(camper);
@@ -960,6 +961,12 @@ public class AssignToCabin extends JPanel implements Serializable {
 		        		clearCabin(currentCabin);
 		        	}
 		        });
+                          
+                                                         addMouseListener(new MouseAdapter() { 
+                                            public void mousePressed(MouseEvent me) { 
+                                                               Home.fileChanged=true;
+                                             } 
+                                                }); 
 			 }
 			 
 		  private void checkEntriesTest(){ //Use method for testing purposes only
@@ -1432,11 +1439,12 @@ public class AssignToCabin extends JPanel implements Serializable {
                                  
                                  
                                                               addCamper(cabin, camper);
-                                                               if(added==false){
-                                                                  camperJList.setSelectedIndex(currentIndex+1);
-                                                              }
-                                                              else{
-                                                             camperJList.setSelectedIndex(currentIndex);}
+                                                            if(added==false){
+                                                                JOptionPane.showMessageDialog(null, "Auto-assign has automatically terminated since you opted not to add camper.  Please run again");
+                                                         return;}
+                                                            
+                                                                camperJList.setSelectedIndex(currentIndex);
+                                                            
 	    		   
                                                              }
                 
