@@ -18,6 +18,24 @@ public class Camp extends JPanel implements Serializable{
 	 */
 	private static final long serialVersionUID = -626604067355754848L;
 	protected final static DateTimeFormatter formatter= DateTimeFormatter.ofPattern("MM/dd/yyyy");
+                   private int campNumber;
+                   private int campSessionNumber;
+
+    public int getCampNumber() {
+        return campNumber;
+    }
+
+    public void setCampNumber(int campNumber) {
+        this.campNumber = campNumber;
+    }
+
+    public int getCampSessionNumber() {
+        return campSessionNumber;
+    }
+
+    public void setCampSessionNumber(int campSessionNumber) {
+        this.campSessionNumber = campSessionNumber;
+    }
 	
 
 	

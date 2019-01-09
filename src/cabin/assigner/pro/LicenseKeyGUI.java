@@ -130,7 +130,7 @@ public class LicenseKeyGUI extends javax.swing.JDialog {
          * message before exiting application.
          */
         if (licenseObject != null && licenseObject.getValidationStatus() != ValidationStatus.LICENSE_VALID) {
-            System.exit(-1);
+           // System.exit(-1);
         }
 
         super.dispose();

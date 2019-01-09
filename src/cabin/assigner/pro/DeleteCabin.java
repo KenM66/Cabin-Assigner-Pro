@@ -240,6 +240,7 @@ if(cabin1!=null){
 	     String response= JOptionPane.showInputDialog(null, "Enter Name", cabin1.getCabinName());
 		if(response!=null){
 		cabin1.setCabinName(response);
+                                      cabin1.setValuesChanged(true);
 		
 	        cabinsModel.removeAllElements();
 	    	initCabinsModel();}
@@ -289,7 +290,7 @@ else{
 	private void editGender(){
 		
 		Cabin cabin1=(((Cabin) cabinJList.getSelectedValue()));
-if(cabin1!=null){	
+                         if(cabin1!=null){	
 		if(NewCabin.cabinList2.contains(cabin1)){
 
 			try{
@@ -298,6 +299,7 @@ if(cabin1!=null){
 		
 		if(response.equalsIgnoreCase("M")||response.equalsIgnoreCase("F")||response.equalsIgnoreCase("N")){
 		cabin1.setGender(response.toUpperCase().charAt(0));
+                                      cabin1.setValuesChanged(true);
 		}
 		else{
 			JOptionPane.showMessageDialog(null, "Please enter a valid gender(M,F,N).");
@@ -331,6 +333,7 @@ else{
 				JOptionPane.showMessageDialog(null, "The capcity for "+cabin1+" is now "+cabin1.getCapacity()+ " campers.");
 				 cabinsModel.removeAllElements();
 			    	initCabinsModel();
+                                                                            cabin1.setValuesChanged(true);
 				
 	          }
 			 else if(cap==null){
@@ -371,7 +374,8 @@ else{
 			   JOptionPane.showMessageDialog(null, "The minimum age for "+cabin1+" is now "+cabin1.getAgeMin()+ " years old.");
 			   System.out.println(min);
 			   cabinsModel.removeAllElements();
-		    	initCabinsModel();}
+		    	   initCabinsModel();}
+                                                            cabin1.setValuesChanged(true);
 		         else{
 		        	 JOptionPane.showMessageDialog(null, min+ " is higher than the maximum age of "+cabin1.getAgeMax());
 		        	 editAgeMin();
@@ -415,6 +419,7 @@ else{
 			   cabin1.setAgeMax(max);
 			   JOptionPane.showMessageDialog(null, "The maximum age for "+cabin1+" is now "+cabin1.getAgeMax()+ " years old.");
 			   cabinsModel.removeAllElements();
+                                                              cabin1.setValuesChanged(true);
 		    	initCabinsModel();}
 		         else{
 		        	 JOptionPane.showMessageDialog(null, max+ " is lower than the maximum age of "+cabin1.getAgeMin());
@@ -455,6 +460,7 @@ else{
 			   cabin1.setNumCounselors(cap);
 			   JOptionPane.showMessageDialog(null, "The number of counselors for "+cabin1+" is now "+cabin1.getNumberOfCounselors());
 			   cabinsModel.removeAllElements();
+                                                              cabin1.setValuesChanged(true);
 		    	initCabinsModel();
 		   }
 		   else if(cap==null){
@@ -462,6 +468,7 @@ else{
 				   return;
 			   }
 			   editNumberOfCounselors();
+                                                           
 		   }
 		   else if(cap==cabin1.getNumberOfCounselors()){
 			   return;

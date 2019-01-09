@@ -387,7 +387,17 @@ public class NewCabin extends JPanel {
 					
 					cabin1.setCapacity((Integer)comboBoxCampers.getSelectedItem());
 					cabin1.setNumCounselors((Integer)comboBoxCounselors.getSelectedItem());
-		cabinList.add(cabin1);
+		
+                
+                
+                                            if(MainJFrame.validated==false){
+                                         if(NewCabin.cabinList.size()>=3){
+                                             JOptionPane.showMessageDialog(null, "The trial version only allows you to add up to 3 cabins.");
+                                             return;
+                                         }
+                                     }
+                                            
+                                            cabinList.add(cabin1);
 		cabinList2.add(cabin1);
 		int response=JOptionPane.showConfirmDialog(null,"CABIN CREATED SUCCESSFULLY! Would you like to create a new Cabin?","SUCCESS", JOptionPane.YES_NO_OPTION);
 		if(response==JOptionPane.YES_OPTION){

@@ -43,10 +43,18 @@ import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.apache.poi.ss.usermodel.DataFormatter;
 
+import java.sql.*;  
+import java.sql.Connection;
+import java.sql.Statement;
+import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 public class Home extends JPanel implements Serializable
 
 
 {
+       
 	
 	/**
 	 * 
@@ -73,7 +81,11 @@ public class Home extends JPanel implements Serializable
 	 static boolean fileLoaded;
 	 static File f;
 	 static boolean fileChanged;
-	 
+         
+                    static  final String JDBC_DRIVER= "com.mysql.jdbc.Driver";
+                    static final String DB_URL= "jdbc:mysql://localhost:3306/summer_camp";
+	 static final String USER="root";
+                    static final String PASSWORD= "";
 	 /*
 	  * If the file loaded equals true, the JFileChooser will not appear when the save button is clicked.  
 	  * If the file changed is equal to false, it will not prompt user to save before closing the program.  
@@ -102,22 +114,51 @@ public class Home extends JPanel implements Serializable
 	
 	private JPanel addEditPanels;
 	private Component horizontalGlue;
+
+    public int getMySQLcampID() {
+        return mySQLcampID;
+    }
+
+    public void setMySQLcampID(int mySQLcampID) {
+        this.mySQLcampID = mySQLcampID;
+    }
+
+    public int getMySQLsessionID() {
+        return mySQLsessionID;
+    }
+
+    public void setMySQLsessionID(int mySQLsessionID) {
+        this.mySQLsessionID = mySQLsessionID;
+    }
+
+    public int getMySQLorganizationID() {
+        return mySQLorganizationID;
+    }
+
+    public void setMySQLorganizationID(int mySQLorganizationID) {
+        this.mySQLorganizationID = mySQLorganizationID;
+    }
 	private JPanel bottomGridPanel;
 	private Component horizontalGlueBottom;
 	
+                   private int mySQLcampID;
+                   private int mySQLsessionID;
+                   private int mySQLorganizationID;
 	
 	
-    Home() throws ClassNotFoundException, InstantiationException, IllegalAccessException, UnsupportedLookAndFeelException
+    public Home() throws ClassNotFoundException, InstantiationException, IllegalAccessException, UnsupportedLookAndFeelException, SQLException
     {
         UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsClassicLookAndFeel");
         
          //  licenseKeyGUI = new LicenseKeyGUI(this, true);
     	
-    	//setTestCampers();
+    	setTestCampers();
     	setTestCabins();
     	setTestDate();
     	
-    	//setTestCounselors();
+    	setTestCounselors();
+        
+                
         
     	
     	 buttonList= new ArrayList<JButton>();
@@ -365,7 +406,6 @@ public class Home extends JPanel implements Serializable
         colorful=false;
         
       
-        
       
     }
  
@@ -396,7 +436,7 @@ public class Home extends JPanel implements Serializable
     
  
  
-    public static void createAndShowGUI() throws ClassNotFoundException, InstantiationException, IllegalAccessException, UnsupportedLookAndFeelException
+    public static void createAndShowGUI() throws ClassNotFoundException, InstantiationException, IllegalAccessException, UnsupportedLookAndFeelException, SQLException
     {
         JFrame frame = new JFrame("Cabin Assigner Pro");
         frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
@@ -405,6 +445,8 @@ public class Home extends JPanel implements Serializable
         frame.setLocationByPlatform( true );
         frame.setLocationRelativeTo(null);
        
+        
+        
         frame.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
@@ -572,10 +614,15 @@ private void setTestCampers(){
 	NewCamper.camperList2.add(camper8);
 	NewCamper.camperList2.add(camper9);
 	NewCamper.camperList2.add(camper10);
+        
+              databaseLink(1, "6329");
+               campSessionLink(1);
+        
+              insertCampersToDatabase();
 	
 	}
 
-public void setTestCabins(){
+public void setTestCabins() throws ClassNotFoundException, SQLException{
 	
 	//Method is only used when testing is being done. 
 	Cabin cabin1= new Cabin("Pink", 'F', 8, 10);
@@ -622,6 +669,8 @@ public void setTestCabins(){
 	NewCabin.cabinList2.add(cabin5);
 	NewCabin.cabinList2.add(cabin6);
 	NewCabin.cabinList2.add(cabin7);
+        
+        addCabinsToDatabase();
 }
 private void setTestDate(){
 	
@@ -631,7 +680,7 @@ private void setTestDate(){
 	camp1.setDateString("07/01/2018");
 }
 
-private void setTestCounselors(){
+private void setTestCounselors() throws ClassNotFoundException, SQLException{
 	
 	//Method is only used when testing is being done. 
 	Counselor counselor1= new Counselor("Miyagi", "Nariyoshi", 'M' );
@@ -648,6 +697,8 @@ private void setTestCounselors(){
 	NewCounselor.counselorList2.add(counselor2);
 	NewCounselor.counselorList2.add(counselor3);
 	NewCounselor.counselorList2.add(counselor4);
+        
+        insertCounselorsToDatabase();
 	
 	
 }
@@ -657,9 +708,7 @@ private void addActionListeners(){
 	assignCabins.addActionListener(new ActionListener() {
     	public void actionPerformed(ActionEvent e) {
                                           MainJFrame.frame.dispose();
-                                        if (MainJFrame.validated==false){
-                                            return;
-                                        }
+                                    
     		if(CampInformation.dateOfCamp!=null){
     		
     		if(NewCabin.cabinList.size()==0){
@@ -683,6 +732,14 @@ private void addActionListeners(){
 		
 		public void actionPerformed(ActionEvent arg0) {
                                                            MainJFrame.frame.dispose();
+                                                           if(MainJFrame.validated==false){
+                                                               if(NewCamper.camperList.size()>20){
+                                                                   String message= "You cannot use this function with more than 20 campers on your list until you activate your software.";
+                                                                   JOptionPane.showMessageDialog(null, message);
+                                                                   return;
+                                                               }
+                                                           }
+                                                           
 			if(CampInformation.dateOfCamp!=null){
 //If the size of both of referenced lists below, it means that either no objects have been created, or that all campers and counselors are 
 // assigned to a cabin.  If either list have any elements, it will alert the user that they haven't given everyone a cabin assignment before printing the final lists. 
@@ -698,7 +755,8 @@ private void addActionListeners(){
 				// TODO Auto-generated catch block
 				
 			}else if((NewCamper.camperList2.size()>0)&&(NewCounselor.counselorList2.size()>0)) {
-				int response=JOptionPane.showConfirmDialog(null, "Are you sure you wish to print your lists?  There are still campers and counselors not assigned to cabins. ");
+                                                                            String message= "Are you sure you wish to print your lists?  There are still campers and counselors not assigned to cabins. ";
+				int response=JOptionPane.showConfirmDialog(null, message);
 				if(response==JOptionPane.YES_OPTION){
 					try {
 						viewCamperCabinList();
@@ -776,6 +834,11 @@ private void addActionListeners(){
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
+                         //   for(Camper c: NewCamper.camperList){
+                           //       c.setEmergencyContact1("Sample Parent");
+                             //     c.setEmergencyContactPhone1("440-781-1401");
+                               //   c.setEmergencyContactRelationship1("Father/Mother");
+                        //   }
     	    }
     });
 	
@@ -852,6 +915,7 @@ private void addActionListeners(){
             
      	public void actionPerformed(ActionEvent e) {
               MainJFrame.frame.dispose();
+                   databaseLink(1, "6429");
      		 campInformation();
      		 fileChanged=true;
      }});
@@ -911,6 +975,7 @@ private void addActionListeners(){
 	       		standardToggleButton.setSelected(false);
 	       		colorful=true;
 	       		setBrightColors();
+                                                         
 	       	}
 	       });
           addMouseListener(new MouseAdapter() { 
@@ -1202,6 +1267,13 @@ private void importCampers(){
 		if(addCamper==false){
 			continue;
 		}
+                
+                                     if(MainJFrame.validated==false){
+                                         if(NewCamper.camperList.size()>=20){
+                                             JOptionPane.showMessageDialog(null, "The trial version only allows you to add up to 20 campers");
+                                             return;
+                                         }
+                                     }
 		
 		NewCamper.camperList.add(camper);
 		NewCamper.camperList2.add(camper);
@@ -1352,7 +1424,315 @@ private void setBrightColors(){
 	
 
 }
+
+public void databaseLink(  int campNumber, String pin){
+      try{
+        Class.forName("com.mysql.jdbc.Driver" );  
+      try (Connection con = DriverManager.getConnection(  
+                
+                       "jdbc:mysql://localhost:3306/summer_camp","root","")){
+               try(Statement stmt=con.createStatement();){
+                
+                String SQL= "SELECT camp.ID, campPinCode, campName FROM camp WHERE camp.ID= ' " +campNumber+   " '  ";  
+                      
+                
+                boolean results= stmt.execute(SQL);
+                int rsCount=0;
+                
+                    do {
+            if (results) {
+                ResultSet rs = stmt.getResultSet();
+                rsCount++;
+
+                // Show data from the result set.
+                System.out.println("RESULT SET #" + rsCount);
+                
+               
+               while(rs.next()){
+                   if((rs.getInt("camp.ID")==campNumber)&&(rs.getString("camp.campPinCode").equals(pin))){
+                        setMySQLcampID(campNumber);
+                        
+                   }
+                   else{
+                       JOptionPane.showMessageDialog(null,"Incorrect camp and pin combination");
+                       setMySQLcampID(0);
+                       return;
+                   }
+                   
+                System.out.println(rs.getString("campPinCode"));
+            }
+            }
+                results= stmt.getMoreResults();
+            
+            
+               } while(results);
+                    
+                    }
+      
+                 catch (SQLException e) {
+        e.printStackTrace();
+    }
+              
+         
+      }
+          
+      }
+      catch(Exception e){
+          JOptionPane.showMessageDialog(null, "Camp Not Found!");
+          e.printStackTrace();
+          
+      }
+          
+    
 }
+
+public void campSessionLink(int sessionNumber){
+     try{
+        Class.forName("com.mysql.jdbc.Driver");  
+      try (Connection con = DriverManager.getConnection(  
+                
+                    "jdbc:mysql://localhost:3306/summer_camp","root","")){
+               try(Statement stmt=con.createStatement();){
+                 
+                String SQL= "SELECT session.ID,campID FROM session where session.ID= ' "  +sessionNumber+     "    '     ";  
+                      
+                
+                boolean results= stmt.execute(SQL);
+                int rsCount=0;
+                
+                    do {
+            if (results) {
+                ResultSet rs = stmt.getResultSet();
+                rsCount++;
+
+                // Show data from the result set.
+                System.out.println("RESULT SET #" + rsCount);
+                
+               
+               while(rs.next()){
+                   if(((rs.getInt("campID")==getMySQLcampID()))&&(rs.getInt("session.ID")==sessionNumber)){
+                        setMySQLsessionID(sessionNumber);
+                   }
+                   else{
+                       JOptionPane.showMessageDialog(null,"Camp session not found with your camp");
+                        setMySQLsessionID(0);
+                       return;
+                   }
+                   
+                System.out.println(rs.getInt("campID"));
+            }
+            }
+                results= stmt.getMoreResults();
+            
+            
+               } while(results);
+                    
+                    }
+      
+                 catch (SQLException e) {
+        e.printStackTrace();
+    }
+              
+         
+      }
+          
+      }
+      catch(Exception e){
+          JOptionPane.showMessageDialog(null, "Camp Session Not Found!");
+          e.printStackTrace();
+          
+      }
+          
+      
+}
+
+public void insertCampersToDatabase(){
+    
+    try{
+        System.out.println(getMySQLsessionID());
+        Class.forName("com.mysql.jdbc.Driver"); 
+        Connection con = DriverManager.getConnection(DB_URL, USER, PASSWORD);
+        
+               
+    
+            for (Camper c : NewCamper.camperList) {
+                if(c.getCamperNumber()==0){
+                   String SQL= " INSERT INTO camper "
+                           + "( firstName, lastName, middleInitial, gender, dateOfBirth, "
+                           + "last4SS, disordersOther, medications, specialNeeds, dietaryPreferencesOther, specialRequests, allergiesOther, notes) VALUES "
+                           + "(?,?,?,?,?,?,?,?,?,?,?,?,?)";
+                   
+                   
+                    PreparedStatement ps= con.prepareStatement(SQL, Statement.RETURN_GENERATED_KEYS);
+                    
+                    ps.setString(1, c.getFirstName());
+                    ps.setString(2, c.getLastName());
+                    ps.setString(3, null);
+                    ps.setString(4, String.valueOf(c.getGender()));
+                    
+                    Date date= Date.valueOf(c.dateOfBirth);
+                    
+                    ps.setDate(5, date);
+                    ps.setString(6, null);
+                    ps.setString(7, c.getDisorders());
+                    ps.setString(8, c.getMedications());
+                    ps.setString(9, c.getSpecialNeeds());
+                    ps.setString(10, c.getDietaryPreferences());
+                    ps.setString(11, c.getSpecialRequest());
+                    ps.setString(12, c.getAllergies());
+                    ps.setString(13, null);
+                    
+                    ps.executeUpdate();
+                    
+                    ResultSet generatedKeys= ps.getGeneratedKeys();
+                    
+                    
+                    if(generatedKeys.next()){
+                    c.setCamperNumber(generatedKeys.getInt(1));
+                    
+                    String sessionLink=  "INSERT INTO camperSessionLink"
+                            + " (camperID, sessionID) VALUES (?,?)";
+                    PreparedStatement ps2= con.prepareStatement(sessionLink);
+                    ps2.setInt(1, c.getCamperNumber());
+                    ps2.setInt(2, getMySQLsessionID());
+             
+                    ps2.executeUpdate();
+                    System.out.println(c.getCamperNumber());}
+                    
+               
+                }
+
+                
+                    
+                    
+                }
+            }
+     
+          catch(SQLException se){
+      //Handle errors for JDBC
+      se.printStackTrace();
+   }catch(Exception e){
+      //Handle errors for Class.forName
+      e.printStackTrace();
+     
+    
+}
+
+}
+
+public void insertCounselorsToDatabase() throws ClassNotFoundException, SQLException{
+    
+    //Exceptions are thrown because method cannot execute unless database is already linked and found. 
+    
+    Class.forName("com.mysql.jdbc.Driver"); 
+        Connection con = DriverManager.getConnection(DB_URL, USER, PASSWORD);
+         
+        String SQL="INSERT INTO staff (firstName, lastName, gender) VALUES(?,?,?)";
+        
+        PreparedStatement ps= con.prepareStatement(SQL, Statement.RETURN_GENERATED_KEYS);
+                
+       
+        
+        for(Counselor c: NewCounselor.counselorList){
+            if(c.getCounselorNumber()==0){
+                  ps.setString(1, c.getFirstName());
+                  ps.setString(2, c.getLastName());
+                  ps.setString(3, String.valueOf(c.getGender()));
+                  
+                  ps.executeUpdate();
+                  
+                   ResultSet generatedKeys= ps.getGeneratedKeys();
+                  
+                  if(generatedKeys.next()){
+                      c.setCounselorNumber(generatedKeys.getInt(1));
+                      
+                      String sessionLink= "INSERT INTO staffSessionLink(staffID, sessionID) VALUES(?,?)";
+                      
+                       PreparedStatement ps2= con.prepareStatement(sessionLink);
+                       ps2.setInt(1, c.getCounselorNumber());
+                       ps2.setInt(2, getMySQLsessionID());
+             
+                       ps2.executeUpdate();
+                      
+                      
+                      
+                  }
+                  
+                  
+               
+                
+           
+            }
+            
+        }
+    
+}
+
+public void addCabinsToDatabase()   throws ClassNotFoundException, SQLException{
+    
+     //Exceptions are thrown because method cannot execute unless database is already linked and found. 
+    
+     Class.forName("com.mysql.jdbc.Driver"); 
+        Connection con = DriverManager.getConnection(DB_URL, USER, PASSWORD);
+        
+        
+        
+        String SQL= "INSERT INTO cabin (cabinName, campSessionID, cabinAgeMin, cabinAgeMax, cabinGender,"
+                + "cabinCamperCapacity, cabinNumOfCounselors) values (?,?,?,?,?,?,?)";
+        
+          PreparedStatement ps= con.prepareStatement(SQL, Statement.RETURN_GENERATED_KEYS);
+          
+                    
+          
+        for(Cabin c: NewCabin.cabinList){
+             if(c.getCabinNumber()==0){
+                 
+                 ps.setString(1, c.getCabinName());
+                 ps.setInt(2, getMySQLsessionID());
+                 ps.setInt(3, c.getAgeMin());
+                 ps.setInt(4, c.getAgeMax());
+                 ps.setString(5, String.valueOf(c.getCabinGender()));
+                 ps.setInt(6, c.getCapacity());
+                 ps.setInt(7, c.getNumberOfCounselors());
+                 
+                  ResultSet generatedKeys= ps.getGeneratedKeys();
+
+                 
+                 if(generatedKeys.next()){
+                     c.setCabinNumber(generatedKeys.getInt(1));
+                 }
+                  
+                 ps.executeUpdate();
+                 
+             }
+        }
+    
+}
+
+}
+
+
+
+
+
+
+           
+      
+
+
+
+
+
+           
+
+
+
+
+           
+      
+
+
+
 
 
 

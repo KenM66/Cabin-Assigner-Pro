@@ -43,6 +43,33 @@ public class Camper implements Serializable {
 	private String emergencyContactRelationship2;
 	private String emergencyContactPhone1;
 	private String emergencyContactPhone2;
+                   private int camperNumber;
+                   private Cabin cabin;
+
+    public boolean isValuesChanged() {
+        return valuesChanged;
+    }
+
+    public void setValuesChanged(boolean valuesChanged) {
+        this.valuesChanged = valuesChanged;
+    }
+                   private boolean valuesChanged= false;
+
+    public Cabin getCabin() {
+        return cabin;
+    }
+
+    public void setCabin(Cabin cabin) {
+        this.cabin = cabin;
+    }
+
+    public int getCamperNumber() {
+        return camperNumber;
+    }
+
+    public void setCamperNumber(int camperNumber) {
+        this.camperNumber = camperNumber;
+    }
 	
 	ArrayList<String> disordersList= new ArrayList<String>();
     //The disorders list was created to ensure the same spelling of common disorders.  Any that are not included can be manually entered on the disorders String.

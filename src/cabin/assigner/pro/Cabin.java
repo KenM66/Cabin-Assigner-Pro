@@ -24,6 +24,25 @@ public class Cabin implements Serializable {
 	
 	
 	private Integer numberOfCounselors;
+        
+                   private int cabinNumber;
+                   
+                    public boolean isValuesChanged() {
+        return valuesChanged;
+    }
+
+    public void setValuesChanged(boolean valuesChanged) {
+        this.valuesChanged = valuesChanged;
+    }
+                   private boolean valuesChanged= false;
+
+    public int getCabinNumber() {
+        return cabinNumber;
+    }
+
+    public void setCabinNumber(int cabinNumber) {
+        this.cabinNumber = cabinNumber;
+    }
 	
 	Cabin(){
 		

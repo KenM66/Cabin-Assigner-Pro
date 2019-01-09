@@ -21,9 +21,36 @@ public class Counselor implements Serializable {    /**
 	private String firstName;
 	private char gender;
 	private String request;
+                   private int counselorNumber;
+                   private Cabin cabin;
+                   
+                    public boolean isValuesChanged() {
+        return valuesChanged;
+    }
+
+    public void setValuesChanged(boolean valuesChanged) {
+        this.valuesChanged = valuesChanged;
+    }
+                   private boolean valuesChanged= false;
+
+    public Cabin getCabin() {
+        return cabin;
+    }
+
+    public void setCabin(Cabin cabin) {
+        this.cabin = cabin;
+    }
 	
 	//The request String if not null or blank will appear when trying to assign a counselor to a cabin to make
 	//sure the user knows of that counselor's request. 
+
+    public int getCounselorNumber() {
+        return counselorNumber;
+    }
+
+    public void setCounselorNumber(int counselorNumber) {
+        this.counselorNumber = counselorNumber;
+    }
 	
 	
 	Counselor(){

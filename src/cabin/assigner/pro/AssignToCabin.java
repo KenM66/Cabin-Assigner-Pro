@@ -612,6 +612,7 @@ public class AssignToCabin extends JPanel implements Serializable {
 						camperAddedJList.setModel(getModelForCabin((cabin)));
 						camperAddedJList.validate();
                                                                                                                    NewCabin.cabinList2.remove(cabin);
+                                                                                                                   camper.setCabin(cabin);
 								
 							}
                                                                                                     else if(camper.getSpecialRequest().length()>=1 ){
@@ -626,6 +627,7 @@ public class AssignToCabin extends JPanel implements Serializable {
 						camperAddedJList.setModel(getModelForCabin((cabin)));
 						camperAddedJList.validate();
                                                                                                                    NewCabin.cabinList2.remove(cabin);
+                                                                                                                   camper.setCabin(cabin);
 							                                                            }
                                                                                                                                        else{
                                                                                                                                                 added=false;
@@ -641,6 +643,7 @@ public class AssignToCabin extends JPanel implements Serializable {
 						                           camperAddedJList.setModel(getModelForCabin((cabin)));
 						                           camperAddedJList.validate();
                                                                                                                                                NewCabin.cabinList2.remove(cabin);
+                                                                                                                                               camper.setCabin(cabin);
                                     
                                                                                                                                              }
                                                                                                           
@@ -649,7 +652,7 @@ public class AssignToCabin extends JPanel implements Serializable {
                                                                                                                             }
 		public void delete(Cabin cabin, Camper camper){
 			
-		cabinMap.remove(null);  //removes null key from map
+		                    cabinMap.remove(null);  //removes null key from map
 			getOrCreateGroup(cabin).remove(camper);
 			getModelForCabin(cabin).removeElement(camper);
 			camperAddedJList.setModel(getModelForCabin(cabin));
@@ -659,6 +662,7 @@ public class AssignToCabin extends JPanel implements Serializable {
 			NewCamper.camperList2.add(camper);
 			initCampersModel(cabin);
 			camperAddedJList.validate();
+                                                          camper.setCabin(null);
 			
 			
 			}
@@ -788,7 +792,10 @@ public class AssignToCabin extends JPanel implements Serializable {
 				if(camperJList.getSelectedValue()!= null){
 			        try {
 			        	
-						addCamper(cabinSelected, camperSelected);}
+						addCamper(cabinSelected, camperSelected);
+                                                                                           camperSelected.setValuesChanged(true);
+                                
+                                }
 			        	
 			        	
 					 catch (ParseException e1) {
@@ -819,6 +826,7 @@ public class AssignToCabin extends JPanel implements Serializable {
 					
 			   if(camperSelected !=null){
 					delete(cabinSelected, camperSelected);
+                                                                                                camperSelected.setValuesChanged(true);
 					}
 			        indexSelector(camperAddedJList, currentIndex, lastIndex);
 					
@@ -875,6 +883,7 @@ public class AssignToCabin extends JPanel implements Serializable {
 						addCounselor(cabinSelected,counselorSelected );
 						indexSelector(counselorJList, currentIndex, lastIndex);
 						NewCabin.cabinList2.remove(cabinSelected);
+                                                                                                                   counselorSelected.setValuesChanged(true);
 						
 						
 					
@@ -895,6 +904,7 @@ public class AssignToCabin extends JPanel implements Serializable {
 						
 		        		deleteCounselor(cabinSelected, counselorSelected);
 		        		indexSelector(counselorAddedJList, currentIndex, lastIndex);
+                                                                            counselorSelected.setValuesChanged(true);
 		        		
 		        		if((counselorAddedJList.getModel().getSize()==0)&&(camperAddedJList.getModel().getSize()==0)){
 		        			NewCabin.cabinList2.add(cabinSelected);
@@ -910,9 +920,16 @@ public class AssignToCabin extends JPanel implements Serializable {
 			  buttonPrintMedicalReport.addActionListener(new ActionListener() {
 		        	public void actionPerformed(ActionEvent arg0) {
 		        		Cabin cabin1= currentCabin;
+		       
+                                                      if(MainJFrame.validated==false){
+                                        
+                                                          if((NewCamper.camperList.size()>=21)||(NewCabin.cabinList.size()>=4)){
+                                                          String message= "You cannot use this feature if you have more than 20 campers or 3 cabins with the trial version";
+                                                                           JOptionPane.showMessageDialog(null, message);
+                                                                           return;
+                                                              }
 		        		
-		        		
-		        	
+                                                      }
 		        		if(cabin1!=null){
 		        			try {
 								medicalReport(cabin1);
@@ -1074,6 +1091,8 @@ public class AssignToCabin extends JPanel implements Serializable {
 				counselorAddedJList.setModel(getModelForCabinCounselors((cabin)));
 				counselorAddedJList.validate();
 				 checkEntriesTest();
+                                                                              counselor.setCabin(cabin);
+                                                                              //System.out.println(counselor.getCounselorNumber());
 			}
 	    	
 	    
@@ -1089,6 +1108,7 @@ public class AssignToCabin extends JPanel implements Serializable {
 			NewCounselor.counselorList2.add(counselor);
 			initCounselorsModel(cabin);
 			counselorAddedJList.validate();
+                                                         counselor.setCabin(null);
 			}
 	    
 	    private void indexSelector(JList list, int index1, int index2){
@@ -1439,6 +1459,7 @@ public class AssignToCabin extends JPanel implements Serializable {
                                  
                                  
                                                               addCamper(cabin, camper);
+                                                              camper.setValuesChanged(true);
                                                             if(added==false){
                                                                 JOptionPane.showMessageDialog(null, "Auto-assign has automatically terminated since you opted not to add camper.  Please run again");
                                                          return;}
@@ -1458,6 +1479,7 @@ public class AssignToCabin extends JPanel implements Serializable {
 	    	  Camper camper= (Camper)getModelForCabin(cabin).getElementAt(0);
 	    	
 	    	  delete(cabin, camper);
+                                        camper.setValuesChanged(true);
 	    	  if(counselorAddedJList.getModel().getSize()==0){
 	    		  NewCabin.cabinList2.add(currentCabin);
 	    	  }

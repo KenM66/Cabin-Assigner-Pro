@@ -689,6 +689,13 @@ public class NewCamper extends JPanel implements Serializable{
 		camper1.setEmergencyContactPhone1(textFieldPhone1.getText());
 		camper1.setEmergencyContactPhone2(textFieldPhone2.getText());
 		camper1.disordersList=temporaryDisorderList;
+                
+                                             if(MainJFrame.validated==false){
+                                         if(NewCamper.camperList.size()>=20){
+                                             JOptionPane.showMessageDialog(null, "The trial version only allows you to add up to 20 campers");
+                                             return;
+                                         }
+                                     }
 		
 		
 		
@@ -698,6 +705,8 @@ public class NewCamper extends JPanel implements Serializable{
 			NewCamper camper= new NewCamper();
 			camper.setVisible(true);
 		}
+                
+                                
 		frame.dispose();
 		camperList.add(camper1);
 		camperList2.add(camper1);
