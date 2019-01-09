@@ -374,8 +374,8 @@ else{
 			   JOptionPane.showMessageDialog(null, "The minimum age for "+cabin1+" is now "+cabin1.getAgeMin()+ " years old.");
 			   System.out.println(min);
 			   cabinsModel.removeAllElements();
-		    	   initCabinsModel();}
-                                                            cabin1.setValuesChanged(true);
+		    	   initCabinsModel();
+                                                            cabin1.setValuesChanged(true);}
 		         else{
 		        	 JOptionPane.showMessageDialog(null, min+ " is higher than the maximum age of "+cabin1.getAgeMax());
 		        	 editAgeMin();
