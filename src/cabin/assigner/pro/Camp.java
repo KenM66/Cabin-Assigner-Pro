@@ -39,7 +39,7 @@ public class Camp extends JPanel implements Serializable{
 	
 
 	
-	
+	//.
 	
 	
 	
