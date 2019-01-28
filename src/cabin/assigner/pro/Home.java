@@ -1892,6 +1892,12 @@ public void updateCounselorsMySQL(Counselor counselor)throws SQLException, Class
 
 }
 
+/*
+The three methods below remove objects from the database if deleted in the Swing application. The first method deletes the 
+camper session link, but leaves the camper in the database. The same with the counselors.  The cabins are only part of a 
+session, and not in direct relation to a camp organization or camp, so they are removed entirely.  
+*/
+
 
 public void removeDeletedCampers()throws SQLException, ClassNotFoundException{
      Class.forName("com.mysql.jdbc.Driver"); 
@@ -1982,6 +1988,12 @@ public void addCounselorToCabinMySQL(Counselor counselor) throws SQLException, C
                     ps3.executeUpdate();
     
 }
+
+/*
+The below methods will allow the importing of a camper and counselor from the database.  The camper/counselor may be 
+part of a camp from another organization, so having the number of the camper and then verifying the last name along 
+with the camper number will import the relevant information.
+*/
 
 public void importCamperFromMySQL(int camperNumber, String lastName) throws ClassNotFoundException{
          Class.forName("com.mysql.jdbc.Driver"); 
