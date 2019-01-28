@@ -20,10 +20,10 @@ public class Camper implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = 7005900758822683271L;
-	Camper(){
+	public Camper(){
 		
 	}
-	Camper(String lastName, String firstName, char gender){
+	public Camper(String lastName, String firstName, char gender){
 		this.lastName= lastName;
 		this.firstName= firstName;
 		this.gender= gender;

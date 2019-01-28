@@ -65,8 +65,8 @@ public class NewCamper extends JPanel implements Serializable{
 	JButton btnCancelReturn;
 	 
 	 
-	static List<Camper> camperList= new ArrayList<Camper>();
-	static List<Camper> camperList2= new ArrayList<Camper>();
+	public static List<Camper> camperList= new ArrayList<Camper>();
+	public static List<Camper> camperList2= new ArrayList<Camper>();
 	private JTextField textFieldAllergies;
 	private JLabel lblDietaryPreferences;
 	private JTextField textFieldDietaryPreferences;

@@ -44,11 +44,11 @@ public class Cabin implements Serializable {
         this.cabinNumber = cabinNumber;
     }
 	
-	Cabin(){
+	public Cabin(){
 		
 	}
 	
-	Cabin(String cabinName, char cabinGender, Integer ageMin, Integer ageMax){
+	public Cabin(String cabinName, char cabinGender, Integer ageMin, Integer ageMax){
 		this.cabinName= cabinName;
 		this.cabinGender= cabinGender;
 		this.ageMin= ageMin;

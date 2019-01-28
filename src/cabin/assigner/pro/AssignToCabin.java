@@ -45,7 +45,7 @@ import java.awt.print.PrinterException;
 import java.io.Serializable;
 import java.text.MessageFormat;
 import java.text.ParseException;
-
+//n
 
 public class AssignToCabin extends JPanel implements Serializable {
     
@@ -613,6 +613,7 @@ public class AssignToCabin extends JPanel implements Serializable {
 						camperAddedJList.validate();
                                                                                                                    NewCabin.cabinList2.remove(cabin);
                                                                                                                    camper.setCabin(cabin);
+                                                                                                                       camper.setValuesChanged(true);
 								
 							}
                                                                                                     else if(camper.getSpecialRequest().length()>=1 ){
@@ -628,6 +629,7 @@ public class AssignToCabin extends JPanel implements Serializable {
 						camperAddedJList.validate();
                                                                                                                    NewCabin.cabinList2.remove(cabin);
                                                                                                                    camper.setCabin(cabin);
+                                                                                                                   camper.setValuesChanged(true);
 							                                                            }
                                                                                                                                        else{
                                                                                                                                                 added=false;
@@ -644,8 +646,10 @@ public class AssignToCabin extends JPanel implements Serializable {
 						                           camperAddedJList.validate();
                                                                                                                                                NewCabin.cabinList2.remove(cabin);
                                                                                                                                                camper.setCabin(cabin);
+                                                                                                                                                   camper.setValuesChanged(true);
                                     
                                                                                                                                              }
+                                                                                                    //System.out.println(camper.getCabin().getCabinNumber());
                                                                                                           
                                                                   }
                                                                

@@ -54,7 +54,7 @@ public class NewCabin extends JPanel {
 	
 	 JButton btnCancel;
 	
-	static List<Cabin> cabinList= new ArrayList<Cabin>();
+	public static List<Cabin> cabinList= new ArrayList<Cabin>();
 	static List<Cabin> cabinList2= new ArrayList<Cabin>();
 	
 /*

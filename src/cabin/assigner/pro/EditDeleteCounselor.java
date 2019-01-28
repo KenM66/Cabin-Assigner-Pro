@@ -23,19 +23,23 @@ import java.awt.Component;
 import java.awt.Color;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.util.ArrayList;
+import java.util.List;
 
 public class EditDeleteCounselor extends JPanel{
 	
-	private JScrollPane counselorPane;
-	private JList counselorJList;
-	private DefaultListModel counselorsModel;
-	private JButton editFirstNameButton;
-	private JButton deleteButton;
+	private final JScrollPane counselorPane;
+	private final JList counselorJList;
+	private final DefaultListModel counselorsModel;
+	private final JButton editFirstNameButton;
+	private final JButton deleteButton;
 	private boolean start;
-	private JButton editLastNameButton;
+	private final JButton editLastNameButton;
 	
-	private JButton editGenderButton;
-	private JButton editRequestsButton;
+	private final JButton editGenderButton;
+	private final JButton editRequestsButton;
+        
+                 static List<Integer> counselorDeletedList= new ArrayList<>();
 	
 	
 	EditDeleteCounselor(){
@@ -283,7 +287,8 @@ Collections.sort(NewCounselor.counselorList, new Comparator<Counselor>(){
 		    
 			
 			if(response==JOptionPane.YES_OPTION){
-		
+                            
+		counselorDeletedList.add(counselor.getCounselorNumber());
 				NewCounselor.counselorList.remove(counselor);
 				NewCounselor.counselorList2.remove(counselor);
 		start=false;

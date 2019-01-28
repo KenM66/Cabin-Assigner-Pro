@@ -38,6 +38,7 @@ import java.time.LocalDate;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.List;
 
 public class EditDeleteCamper extends JPanel{
 	
@@ -86,9 +87,12 @@ public class EditDeleteCamper extends JPanel{
 	private ArrayList<String> temporaryDisorderList;
 	private String temporaryOtherDisorder;
 	
+        
+                 public static List<Integer> camperDeletedList= new ArrayList<>();                  
+        
 	EditDeleteCamper(){
 		
-		temporaryDisorderList= new ArrayList<String>();
+		temporaryDisorderList= new ArrayList<>();
 	
 		
 		setBorder(new EmptyBorder(20,60,20,60));
@@ -217,20 +221,23 @@ public class EditDeleteCamper extends JPanel{
 	void deleteCamper(Camper camper){
 		int index= camperJList.getSelectedIndex();
 		
-	if(camperJList.getSelectedValue()!=null){
+if(camperJList.getSelectedValue()!=null){
 		
-		if(NewCamper.camperList2.contains(camper)){
+	if(NewCamper.camperList2.contains(camper)){
 /*
  * Campers are deleted from list 2 when added to a cabin, and added back to list 2 when removed from a cabin.
  * A camper must be on list 2 to be deleted to avoid deleted a camper they already assigned to a cabin. 
  */
 			
-			String message= "Are you sure you want to delete "+camper+" ?";
+		String message= "Are you sure you want to delete "+camper+" ?";
 		
-			int response= JOptionPane.showConfirmDialog(null, message);
+		int response= JOptionPane.showConfirmDialog(null, message);
 			
-			if(response==JOptionPane.YES_OPTION){
-		
+		if(response==JOptionPane.YES_OPTION){
+	                               if(camper.getCamperNumber()!=0){
+                                                  camperDeletedList.add(camper.getCamperNumber());
+                                                    }	
+                            
 		NewCamper.camperList.remove(camper);
 		NewCamper.camperList2.remove(camper);
 		start=false;
@@ -238,14 +245,12 @@ public class EditDeleteCamper extends JPanel{
 		initCampersModel();
 		setIndex(index);}
 		
-		else{
-			return;
-		}}
+		}
 		
-		else{
-			JOptionPane.showMessageDialog(null, "You may not delete a camper currently assigned to a cabin!");
-			//return;
-		}}
+	else{
+		JOptionPane.showMessageDialog(null, "You may not delete a camper currently assigned to a cabin!");
+			
+	}}
 		
 	}
 	

@@ -47,6 +47,8 @@ import java.sql.*;
 import java.sql.Connection;
 import java.sql.Statement;
 import java.sql.SQLException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -74,6 +76,11 @@ public class Home extends JPanel implements Serializable
 	private JButton importCampers;
 	private JButton importCounselors;
                    private JButton buttonLicense;
+                   private JMenuItem linkDatabase;
+                   private  JMenuItem updateDatabase;
+                   private JMenuItem saveAs;
+                   private   JMenuItem importCampersFromMySQL;
+                
 
 	
 	 static JFileChooser fileChooser;
@@ -144,6 +151,8 @@ public class Home extends JPanel implements Serializable
                    private int mySQLcampID;
                    private int mySQLsessionID;
                    private int mySQLorganizationID;
+                   
+                      private boolean databaseLinked;
 	
 	
     public Home() throws ClassNotFoundException, InstantiationException, IllegalAccessException, UnsupportedLookAndFeelException, SQLException
@@ -159,9 +168,33 @@ public class Home extends JPanel implements Serializable
     	setTestCounselors();
         
                 
-        
+        setLayout(new FlowLayout(FlowLayout.LEFT));
     	
-    	 buttonList= new ArrayList<JButton>();
+    	 buttonList= new ArrayList<>();
+         
+                    JMenuBar mb= new JMenuBar();
+                    JMenu menu1= new JMenu("File");
+                    JMenu menu2= new JMenu("Database");
+                     saveAs= new JMenuItem("Save As");
+                    menu1.add(saveAs);
+                     linkDatabase= new JMenuItem("Link Database");
+                    updateDatabase= new JMenuItem("Update Database");
+                    importCampersFromMySQL= new JMenuItem("Import camper(s)");
+                    menu2.add(linkDatabase);
+                    menu2.add(updateDatabase);
+                    menu2.add(importCampersFromMySQL);
+                    menu1.setBackground(Color.ORANGE);
+                    menu2.setBackground(Color.ORANGE);
+                    mb.add(menu1);
+                    mb.add(menu2);
+                    
+                
+                    
+                    
+                    
+                    add(mb);
+                    
+                    
     	
     	
     	//Above methods are used for testing purposes
@@ -559,7 +592,7 @@ public void campInformation(){
 public void noCabinsError(){
     JOptionPane.showMessageDialog(null, "You have not created any cabins yet!");
 }
-private void setTestCampers(){
+private void setTestCampers() throws SQLException, ClassNotFoundException{
 	//Method is only used when testing is being done. 
 	
 	Camper camper1= new Camper("Mann", "Terrance", 'M');
@@ -614,11 +647,15 @@ private void setTestCampers(){
 	NewCamper.camperList2.add(camper8);
 	NewCamper.camperList2.add(camper9);
 	NewCamper.camperList2.add(camper10);
-        
+       
               databaseLink(1, "6329");
-               campSessionLink(1);
-        
-              insertCampersToDatabase();
+             campSessionLink(1);
+               
+                 
+                 
+          
+            
+       
 	
 	}
 
@@ -670,7 +707,7 @@ public void setTestCabins() throws ClassNotFoundException, SQLException{
 	NewCabin.cabinList2.add(cabin6);
 	NewCabin.cabinList2.add(cabin7);
         
-        addCabinsToDatabase();
+
 }
 private void setTestDate(){
 	
@@ -698,7 +735,7 @@ private void setTestCounselors() throws ClassNotFoundException, SQLException{
 	NewCounselor.counselorList2.add(counselor3);
 	NewCounselor.counselorList2.add(counselor4);
         
-        insertCounselorsToDatabase();
+        //insertCounselorsToDatabase();
 	
 	
 }
@@ -915,7 +952,7 @@ private void addActionListeners(){
             
      	public void actionPerformed(ActionEvent e) {
               MainJFrame.frame.dispose();
-                   databaseLink(1, "6429");
+                 
      		 campInformation();
      		 fileChanged=true;
      }});
@@ -990,6 +1027,25 @@ private void addActionListeners(){
                         MainJFrame.frame.setVisible(true);
         }
            });
+           
+           linkDatabase.addActionListener(new ActionListener() {
+    	public void actionPerformed(ActionEvent e) {
+                    createLinkDatabaseFrame();
+        }
+        });
+           
+           updateDatabase.addActionListener(new ActionListener() {
+    	public void actionPerformed(ActionEvent e) {
+                try {
+                    updateDatabase();
+                } catch (ClassNotFoundException ex) {
+                    Logger.getLogger(Home.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (SQLException ex) {
+                    Logger.getLogger(Home.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            
+        }
+           });
 }
 
         
@@ -1030,6 +1086,10 @@ private static void saveCamp(){
          oos.writeObject(CampInformation.nameOfCamp);
          oos.writeObject(CampInformation.sloganOfCamp);
          oos.writeObject(CampInformation.campDateString);
+         
+         oos.writeObject(EditDeleteCamper.camperDeletedList);
+         oos.writeObject(EditDeleteCounselor.counselorDeletedList);
+         oos.writeObject(DeleteCabin.cabinDeleted);
         
          oos.close();
          fos.close();
@@ -1076,6 +1136,10 @@ private void readCamp() throws ClassNotFoundException {
 		CampInformation.sloganOfCamp= (String) ois.readObject();
 		CampInformation.campDateString= (String) ois.readObject();
 		fileLoaded= true;
+                
+                                     EditDeleteCamper.camperDeletedList= (ArrayList) ois.readObject();
+                                     EditDeleteCounselor.counselorDeletedList= (ArrayList) ois.readObject();
+                                     DeleteCabin.cabinDeleted= (ArrayList) ois.readObject();
 		
 		} catch (FileNotFoundException e) {
 		
@@ -1110,6 +1174,10 @@ private static void saveSelectedCamp(){
 	     oos.writeObject(CampInformation.nameOfCamp);
 	     oos.writeObject(CampInformation.sloganOfCamp);
 	     oos.writeObject(CampInformation.campDateString);
+             
+                        oos.writeObject(EditDeleteCamper.camperDeletedList);
+                        oos.writeObject(EditDeleteCounselor.counselorDeletedList);
+                        oos.writeObject(DeleteCabin.cabinDeleted);
 	     oos.close();
 	     fos.close();
 	     fileChanged=false;
@@ -1451,6 +1519,7 @@ public void databaseLink(  int campNumber, String pin){
                while(rs.next()){
                    if((rs.getInt("camp.ID")==campNumber)&&(rs.getString("camp.campPinCode").equals(pin))){
                         setMySQLcampID(campNumber);
+                        databaseLinked=true;
                         
                    }
                    else{
@@ -1552,35 +1621,26 @@ public void insertCampersToDatabase(){
         System.out.println(getMySQLsessionID());
         Class.forName("com.mysql.jdbc.Driver"); 
         Connection con = DriverManager.getConnection(DB_URL, USER, PASSWORD);
-        
-               
-    
-            for (Camper c : NewCamper.camperList) {
-                if(c.getCamperNumber()==0){
-                   String SQL= " INSERT INTO camper "
-                           + "( firstName, lastName, middleInitial, gender, dateOfBirth, "
-                           + "last4SS, disordersOther, medications, specialNeeds, dietaryPreferencesOther, specialRequests, allergiesOther, notes) VALUES "
-                           + "(?,?,?,?,?,?,?,?,?,?,?,?,?)";
+         String SQL= "INSERT INTO camper( firstName, lastName, gender, dateOfBirth  ) VALUES (?,?,?,?)";
                    
                    
                     PreparedStatement ps= con.prepareStatement(SQL, Statement.RETURN_GENERATED_KEYS);
+           
+    
+            for (Camper c : NewCamper.camperList) {
+                if(c.getCamperNumber()==0){
+                  
                     
                     ps.setString(1, c.getFirstName());
                     ps.setString(2, c.getLastName());
-                    ps.setString(3, null);
-                    ps.setString(4, String.valueOf(c.getGender()));
+                   
+                    ps.setString(3, String.valueOf(c.getGender()));
                     
                     Date date= Date.valueOf(c.dateOfBirth);
                     
-                    ps.setDate(5, date);
-                    ps.setString(6, null);
-                    ps.setString(7, c.getDisorders());
-                    ps.setString(8, c.getMedications());
-                    ps.setString(9, c.getSpecialNeeds());
-                    ps.setString(10, c.getDietaryPreferences());
-                    ps.setString(11, c.getSpecialRequest());
-                    ps.setString(12, c.getAllergies());
-                    ps.setString(13, null);
+                    ps.setDate(4, date);
+                    
+               
                     
                     ps.executeUpdate();
                     
@@ -1597,12 +1657,27 @@ public void insertCampersToDatabase(){
                     ps2.setInt(2, getMySQLsessionID());
              
                     ps2.executeUpdate();
-                    System.out.println(c.getCamperNumber());}
+                    System.out.println(c.getCamperNumber());
+                   c.setValuesChanged(false);
                     
+                    
+                    }
+                     if((c.getCabin()!=null)){
+                        System.out.println (c.getCabin().getCabinNumber());
+                       addCamperToCabinMySQL(c);
+                    } 
+                   
                
                 }
+               
 
-                
+                else {
+                    if((c.getCabin()==null)&&(c.isValuesChanged()==true)){
+                    updateCampersMySQL(c);}
+                    else if((c.getCabin()!=null)&&(c.isValuesChanged()==true)){
+                        addCamperToCabinMySQL(c);
+                    }
+                }
                     
                     
                 }
@@ -1653,16 +1728,18 @@ public void insertCounselorsToDatabase() throws ClassNotFoundException, SQLExcep
                        ps2.setInt(2, getMySQLsessionID());
              
                        ps2.executeUpdate();
-                      
-                      
-                      
-                  }
-                  
-                  
-               
-                
-           
-            }
+                       
+                        if(c.getCabin()!=null){
+                            
+                            addCounselorToCabinMySQL(c);
+                                                      }
+                                                   }
+                                                        }
+                                     else{
+                                             if(c.isValuesChanged()==true){
+                                                 updateCounselorsMySQL(c);
+                                             }
+                                          }
             
         }
     
@@ -1687,6 +1764,8 @@ public void addCabinsToDatabase()   throws ClassNotFoundException, SQLException{
         for(Cabin c: NewCabin.cabinList){
              if(c.getCabinNumber()==0){
                  
+                 
+                 
                  ps.setString(1, c.getCabinName());
                  ps.setInt(2, getMySQLsessionID());
                  ps.setInt(3, c.getAgeMin());
@@ -1695,25 +1774,383 @@ public void addCabinsToDatabase()   throws ClassNotFoundException, SQLException{
                  ps.setInt(6, c.getCapacity());
                  ps.setInt(7, c.getNumberOfCounselors());
                  
-                  ResultSet generatedKeys= ps.getGeneratedKeys();
-
+                  
+                  
+                    ps.executeUpdate();
+                
+                    ResultSet generatedKeys= ps.getGeneratedKeys(); 
                  
                  if(generatedKeys.next()){
-                     c.setCabinNumber(generatedKeys.getInt(1));
+                    
+                  //   System.out.println(generatedKeys.getInt(1));
+                     int cabinSQLnum= generatedKeys.getInt(1);
+                      c.setCabinNumber(cabinSQLnum);
+                     System.out.println(c.getCabinNumber());
                  }
                   
-                 ps.executeUpdate();
+               
+                 
+              
                  
              }
+             else{
+                 if(c.isValuesChanged()==true){
+                 updateCabinsMySQL(c);}
+             }
+              
         }
     
 }
 
+public void updateCampersMySQL(Camper camper) throws SQLException, ClassNotFoundException{
+    
+       Class.forName("com.mysql.jdbc.Driver"); 
+       Connection con = DriverManager.getConnection(DB_URL, USER, PASSWORD);
+
+       String SQL="UPDATE camper SET firstName=?, lastName=?, gender=?, dateOfBirth=? WHERE camper.ID=?";
+       
+        PreparedStatement ps= con.prepareStatement(SQL);
+        ps.setString(1, camper.getFirstName());
+        ps.setString(2, camper.getLastName());
+        ps.setString(3, String.valueOf(camper.getGender()));
+        
+        Date date= Date.valueOf(camper.dateOfBirth);
+        
+        ps.setDate(4, date);
+        
+        ps.setInt(5, camper.getCamperNumber());
+        
+        ps.executeUpdate();
+        
+         if(camper.getCabin()!=null){
+                    String cabinLink= "UPDATE camperCabin SET cabinID=? WHERE camperID=? AND sessionID=?";
+                    PreparedStatement ps3= con.prepareStatement(cabinLink);
+                   // ps3.setInt(1, camper.getCamperNumber());
+                    ps3.setInt(1, camper.getCabin().getCabinNumber());
+                    ps3.setInt(2,camper.getCamperNumber());
+                    ps3.setInt(3, getMySQLsessionID());
+                    ps3.executeUpdate();
+                    }
+         else{
+                 String nullCabin= "DELETE FROM camperCabin WHERE camperID=? AND sessionID=?";
+                 PreparedStatement ps4= con.prepareStatement(nullCabin);
+                 ps4.setInt(1, camper.getCamperNumber());
+                 ps4.setInt(2, getMySQLsessionID());
+                 ps4.executeUpdate();
+         }
+    
+}
+
+public void updateCabinsMySQL(Cabin cabin) throws SQLException, ClassNotFoundException{
+              Class.forName("com.mysql.jdbc.Driver"); 
+              Connection con = DriverManager.getConnection(DB_URL, USER, PASSWORD);
+              String SQL= "UPDATE cabin SET cabinName=?, cabinAgeMin=?, cabinAgeMax=?, cabinGender=?, cabinCapacity=?,"
+                      + " cabinNumOfCounselors=? WHERE cabinID=?";
+              
+              PreparedStatement ps= con.prepareStatement(SQL);
+              ps.setString(1, cabin.getCabinName());
+              ps.setInt(2, cabin.getAgeMin());
+              ps.setInt(3, cabin.getAgeMax());
+              ps.setString(4, String.valueOf(cabin.getCabinGender()));
+              ps.setInt(5, cabin.getCapacity());
+              ps.setInt(6, cabin.getNumberOfCounselors());
+              ps.setInt(7, cabin.getCabinNumber());
+              
+              ps.executeUpdate();
+}
+
+public void updateCounselorsMySQL(Counselor counselor)throws SQLException, ClassNotFoundException{
+    Class.forName("com.mysql.jdbc.Driver"); 
+       Connection con = DriverManager.getConnection(DB_URL, USER, PASSWORD);
+       
+       String SQL="UPDATE staff SET firstName=?, lastName=?, gender=? WHERE staff.ID=?";
+       PreparedStatement ps= con.prepareStatement(SQL);
+       
+       ps.setString(1, counselor.getFirstName());
+       ps.setString(2, counselor.getLastName());
+       ps.setString(3, String.valueOf(counselor.getGender()));
+       ps.setInt(4, counselor.getCounselorNumber());
+       
+       ps.executeUpdate();
+       
+       if(counselor.getCabin()!=null){
+           String cabinLink= "UPDATE staffCabinLink SET cabinID=? WHERE staffID=?, sessionID=?";
+          PreparedStatement ps2= con.prepareStatement(cabinLink);
+           ps2.setInt(1, counselor.getCabin().getCabinNumber());
+           ps2.setInt(2, counselor.getCounselorNumber());
+           ps2.setInt(3, getMySQLsessionID());
+           ps2.executeUpdate();
+           
+       }
+       else{
+             String nullCabin= "DELETE FROM staffCabinLink WHERE staffID=?, sessionID=?";
+             PreparedStatement ps3= con.prepareStatement(nullCabin);
+             ps3.setInt(1, counselor.getCounselorNumber());
+             ps3.setInt(2, getMySQLsessionID());
+             ps3.executeUpdate();
+       }
+
 }
 
 
+public void removeDeletedCampers()throws SQLException, ClassNotFoundException{
+     Class.forName("com.mysql.jdbc.Driver"); 
+       Connection con = DriverManager.getConnection(DB_URL, USER, PASSWORD);
+       
+      
+       int lastIndex= EditDeleteCamper.camperDeletedList.size()-1;
+      for(int i= lastIndex; i>=0;i--){
+          int deleteNumber= EditDeleteCamper.camperDeletedList.get(i);
+          
+           String SQL="DELETE FROM camperSessionLink WHERE camperID=? AND sessionID=?";
+            PreparedStatement stmt=con.prepareStatement(SQL);
+            stmt.setInt(1, deleteNumber);
+            stmt.setInt(2, getMySQLsessionID());
+            stmt.executeUpdate();
+            
+          
+            EditDeleteCamper.camperDeletedList.remove(i);
+            
+         
+      }
+      
+    
 
+}
 
+public void removeDeletedCabins() throws SQLException, ClassNotFoundException{
+     Class.forName("com.mysql.jdbc.Driver"); 
+      Connection con = DriverManager.getConnection(DB_URL, USER, PASSWORD);
+      
+      int lastIndex= DeleteCabin.cabinDeleted.size()-1;
+      for(int i=lastIndex; i>=0; i--){
+          int deleteNumber= DeleteCabin.cabinDeleted.get(i);
+          
+          String SQL="DELETE FROM cabin WHERE cabinID=?";
+          PreparedStatement ps= con.prepareStatement(SQL);
+          ps.setInt(1, deleteNumber);
+          ps.executeUpdate();
+         
+          DeleteCabin.cabinDeleted.remove(i);
+      }
+       
+}
+
+public void removeDeletedCounselors()  throws SQLException, ClassNotFoundException{
+     Class.forName("com.mysql.jdbc.Driver"); 
+     Connection con = DriverManager.getConnection(DB_URL, USER, PASSWORD);
+                 int lastIndex= EditDeleteCounselor.counselorDeletedList.size()-1;
+              for(int i=lastIndex; i>=0; i--){
+                  int deleteNumber= EditDeleteCounselor.counselorDeletedList.get(i);
+                  
+                  String SQL= "DELETE FROM staffSessionLink WHERE staffID=?";
+                  PreparedStatement ps= con.prepareStatement(SQL);
+                  ps.setInt(1, deleteNumber);
+                  ps.executeUpdate();
+                  
+                  EditDeleteCounselor.counselorDeletedList.remove(i);
+                  
+              }
+}
+
+public void addCamperToCabinMySQL(Camper camper) throws SQLException, ClassNotFoundException{
+      Class.forName("com.mysql.jdbc.Driver"); 
+      Connection con = DriverManager.getConnection(DB_URL, USER, PASSWORD);
+      
+      String SQL= "INSERT INTO camperCabin (camperID, cabinID, sessionID) VALUES (?,?,?)";
+      
+      PreparedStatement ps= con.prepareStatement(SQL);
+      
+      ps.setInt(1, camper.getCamperNumber());
+      ps.setInt(2, camper.getCabin().getCabinNumber());
+      System.out.println(camper.getCabin().getCabinNumber());
+      ps.setInt(3, getMySQLsessionID());
+      
+      ps.executeUpdate();
+}
+
+public void addCounselorToCabinMySQL(Counselor counselor) throws SQLException, ClassNotFoundException  {
+        Class.forName("com.mysql.jdbc.Driver"); 
+         Connection con = DriverManager.getConnection(DB_URL, USER, PASSWORD);    
+    
+    
+      String cabinLink= "INSERT INTO staffCabinLink (staffID, cabinID, sessionID) VALUES (?,?,?)";
+                    PreparedStatement ps3= con.prepareStatement(cabinLink);
+                    ps3.setInt(1, counselor.getCounselorNumber());
+                    ps3.setInt(2, counselor.getCabin().getCabinNumber());
+                    ps3.setInt(3, getMySQLsessionID());
+                    ps3.executeUpdate();
+    
+}
+
+public void importCamperFromMySQL(int camperNumber, String lastName) throws ClassNotFoundException{
+         Class.forName("com.mysql.jdbc.Driver"); 
+       
+           
+         
+         
+         ResultSet rs;
+            try {
+                 Connection con = DriverManager.getConnection(DB_URL, USER, PASSWORD);
+                Statement stmt=con.createStatement();
+                rs = stmt.executeQuery("SELECT firstName, lastName, gender, dateOfBirth FROM camper WHERE camper.ID='"+camperNumber+"' ");
+                 while(rs.next())
+                 if(rs.getString(2).equalsIgnoreCase(lastName)){
+                     
+                  String camperFirstName= rs.getString(1);
+                  String camperLastName= rs.getString(2);
+                  String camperGender= String.valueOf(rs.getString(3));
+                  char gender= camperGender.charAt(0);
+                  Date birthDate= rs.getDate(4);
+                  
+                  DateFormat format= new SimpleDateFormat("MM/dd/yyyy");
+                  String dob= format.format(birthDate);
+                  System.out.println(dob);
+                   String SQL= "INSERT INTO camperSessionLink(camperID, sessionID) VALUES (?,?)";
+                   
+                     for(Camper camper: NewCamper.camperList){
+                         if(camper.getCamperNumber()==camperNumber){
+                             return;
+                         }
+                     }
+                     Camper camper= new Camper(camperFirstName, camperLastName, gender);
+                     camper.setDob(dob);
+                     camper.setCamperNumber(camperNumber);
+                     NewCamper.camperList.add(camper);
+                     NewCamper.camperList2.add(camper);
+                     
+                   //  String SQL= "INSERT INTO camperSessionLink(camperID, sessionID) VALUES (?,?)";
+                     PreparedStatement ps= con.prepareStatement(SQL);
+                     ps.setInt(1, camperNumber);
+                     ps.setInt(2, getMySQLsessionID());
+                     ps.executeUpdate();
+                 
+             }
+                 else{
+                     JOptionPane.showMessageDialog(null,"The entered number does not existed in database");
+                 }
+            } catch (SQLException ex) {
+              if (ex instanceof SQLIntegrityConstraintViolationException){
+                  JOptionPane.showMessageDialog(null, "Camper Already Exists in this Session!");
+                  
+                  return;
+              } 
+                Logger.getLogger(Home.class.getName()).log(Level.SEVERE, null, ex);
+                JOptionPane.showMessageDialog(null, "Camper ID not found in database!");
+            }
+         
+         
+        {
+                    
+           
+             }
+             
+         
+         
+         
+    
+}
+
+private void createLinkDatabaseFrame(){
+       JFrame frame= new JFrame();
+       frame.setLayout(new GridLayout(4,2));
+       frame.setBackground(Color.BLUE);
+       frame.setMinimumSize(new Dimension(250,400));
+       frame.setLocationRelativeTo(null);
+       frame.getRootPane().setBorder(BorderFactory.createEmptyBorder(20,20,20,20));
+     
+        JLabel campNumber= new JLabel("Enter Camp #");
+        JLabel campCode= new JLabel("Enter Camp Code");
+        JLabel campSession= new JLabel("Enter Session #");
+      
+        campNumber.setFont(new Font("Tahoma", Font.BOLD, 18));
+        campCode.setFont(new Font("Tahoma", Font.BOLD, 18));
+        campSession.setFont(new Font("Tahoma", Font.BOLD, 18));
+        
+        
+        JTextField campField= new JTextField();
+        JTextField codeField= new JTextField();
+        JTextField sessionField= new JTextField();
+        JButton enter= new JButton("Enter");
+        enter.setBackground(Color.gray);
+        
+        enter.addActionListener(new ActionListener() {
+               
+              @Override
+      	public void actionPerformed(ActionEvent arg0) {
+                   try{
+                       String campNumberField= campField.getText();
+                       Integer campParsedNumber= Integer.parseInt(campNumberField);
+                      
+                       String sessionNumberField= sessionField.getText();
+                       Integer sessionParsedNumber= Integer.parseInt(sessionNumberField);
+                        databaseLink(campParsedNumber, codeField.getText());
+                        campSessionLink(sessionParsedNumber);
+                        
+                        if(getMySQLsessionID()==0){
+                          setMySQLcampID(0);
+                          JOptionPane.showMessageDialog(null, "Camp session not found!  Please try again!");
+                        }
+                        else{
+                           
+                            JOptionPane.showMessageDialog(null, "Camp database linked successfully!  "
+                                    + "Please be aware that if you did not load your camp file before updating your database"
+                                    + ", all your previous data not loaded will be removed from this session.");
+                            frame.dispose();
+                            
+                        }
+                   }
+                   catch(Exception e){
+                       JOptionPane.showMessageDialog(null, "Please enter a digit for the camp and session number");
+                   }
+            
+        }});
+        
+        JButton cancel= new JButton("Cancel");
+        cancel.setBackground(Color.gray);
+        campField.setFont(new Font("Tahoma", Font.PLAIN, 16));
+        codeField.setFont(new Font("Tahoma", Font.PLAIN, 16));
+        sessionField.setFont(new Font("Tahoma", Font.PLAIN, 16));
+        
+        cancel.addActionListener(new ActionListener() {
+               
+              @Override
+      	public void actionPerformed(ActionEvent arg0) {
+                   frame.dispose();
+        }});
+      
+ 
+        frame.add(campNumber);
+        frame.add(campField);
+        frame.add(campCode);
+     
+       
+        frame.add(codeField);
+           frame.add(campSession);
+           frame.add(sessionField);
+        frame.add(enter);
+        frame.add(cancel);
+        
+        frame.pack();
+        frame.setVisible(true);
+   }
+ 
+private void updateDatabase() throws ClassNotFoundException, SQLException{
+    removeDeletedCampers();
+    removeDeletedCounselors();
+    removeDeletedCabins();
+    addCabinsToDatabase();
+    insertCampersToDatabase();
+  insertCounselorsToDatabase();
+    
+  
+    
+    
+    
+}
+
+ 
+}
 
 
            

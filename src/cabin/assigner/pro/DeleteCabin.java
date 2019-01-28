@@ -34,6 +34,7 @@ import java.awt.GridBagConstraints;
 import java.awt.Insets;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.List;
 
 public class DeleteCabin extends JFrame {
 	
@@ -47,6 +48,10 @@ public class DeleteCabin extends JFrame {
 	private JButton btnAgeMax;
 	private JButton btnCounselors;
 	private DefaultListModel<Cabin> cabinsModel= new DefaultListModel<Cabin>();
+        
+                   static List<Integer> cabinDeleted = new ArrayList<>();
+                   //After cabin is deleted, the number will be added to the list, and then each cabin number in the database will be removed
+                   //once queried, and then the above arrayList will have all elements removed.  
 
 	
 
@@ -244,12 +249,8 @@ if(cabin1!=null){
 		
 	        cabinsModel.removeAllElements();
 	    	initCabinsModel();}
-		else{
-			return;
-		}}
-else{
-	return;
-}
+		}
+
 	}
 	private void deleteCabin(){
 	
@@ -270,8 +271,8 @@ else{
 		
 		if(answer == JOptionPane.YES_OPTION){
 		
-		
-		
+		if(deleteCabin.getCabinNumber()!=0){
+		cabinDeleted.add(deleteCabin.getCabinNumber());}
 		NewCabin.cabinList.remove(deleteCabin);
 		NewCabin.cabinList2.remove(deleteCabin);
 		cabinsModel.removeAllElements();
@@ -283,9 +284,7 @@ else{
 		else{
 			cabinModifyError();
 		}}
-	else{
-		return;
-	}
+	
 	}
 	private void editGender(){
 		
