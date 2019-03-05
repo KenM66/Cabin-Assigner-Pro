@@ -86,6 +86,8 @@ public class EditDeleteCamper extends JPanel{
 	
 	private ArrayList<String> temporaryDisorderList;
 	private String temporaryOtherDisorder;
+        
+                  boolean disordersChanged;
 	
         
                  public static List<Integer> camperDeletedList= new ArrayList<>();                  
@@ -276,7 +278,11 @@ if(camperJList.getSelectedValue()!=null){
 	}
 	
 	private void editCamperWindow(Camper camper){
-		//camper.disordersList=temporaryDisorderList;
+		//disordersChanged=false;
+                
+                                    // temporaryDisorderList= camper.disordersList;
+                
+                                    
 		ArrayList<JTextField> txList= new ArrayList<JTextField>();
 //List is created to change the color of the text fields when the colorful stated boolean is set to true. 
 		//System.out.println(camper.disordersList); //For testing purposes. 
@@ -484,6 +490,8 @@ if(camperJList.getSelectedValue()!=null){
 			btnAddEdit.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent arg0) {
 					
+                                    
+                                                                                    
 					ArrayList<JCheckBox> checkBoxList= new ArrayList<JCheckBox>();
 
 					JFrame frame= new JFrame("DISORDERS");
@@ -565,6 +573,8 @@ if(camperJList.getSelectedValue()!=null){
 			 
 			 
 			 String adhd= "Attention Deficit Hyperactivity Disorder(ADHD)";
+                         
+                                                       //  camper.disordersList=temporaryDisorderList;
 
 			 
 			 if((camper.disordersList.contains(adhd)||(temporaryDisorderList.contains(adhd)))){
@@ -598,9 +608,12 @@ if(camperJList.getSelectedValue()!=null){
 			 
 			 JButton saveButton= new JButton("Save");
 			 saveButton.addActionListener(new ActionListener(){
+                                                                          
              
 				@Override
 				public void actionPerformed(ActionEvent arg0) {
+                                                                                                
+                                    
 					temporaryDisorderList.clear();
 					if(chckbxADHD.isSelected()==true){
 						temporaryDisorderList.add("Attention Deficit Hyperactivity Disorder(ADHD)");
@@ -623,6 +636,8 @@ if(camperJList.getSelectedValue()!=null){
 				    	temporaryDisorderList.add("Depression");
 				    }
 				   temporaryOtherDisorder= txtFieldOther.getText();
+                                   
+                                                                               disordersChanged=true;
 				    
 				    frame.dispose();
 				 //   System.out.println(temporaryDisorderList);
@@ -984,7 +999,8 @@ if(camperJList.getSelectedValue()!=null){
 		 * No changes can be made to a camper already assigned to a cabin.  They will be removed from the 2nd list if assigned
 		 * to a cabin, and added back once removed. 
 		 */
-				camper.disordersList.clear();
+                                                                      
+				//camper.disordersList.clear(); 
 				
 				LocalDate camperBirthDate= camper.dateOfBirth;
 				camper.setDob(dobField.getText());
@@ -993,7 +1009,11 @@ if(camperJList.getSelectedValue()!=null){
 				camper.setLastName(lastNameField.getText());
 				
 				camper.setGender(rdbtnMale.isSelected()?'M': rdbtnFemale.isSelected()?'F':rdbtnOther.isSelected()? 'O':null);
-				camper.setDisorders(temporaryOtherDisorder);
+                                
+                                                                             if(disordersChanged==true){
+				camper.setDisorders(temporaryOtherDisorder);}
+                                                                             
+                                                                             
 				camper.setMedications(medicationsField.getText());
 				camper.setAllergies(textFieldAllergies.getText());
 				camper.setDietaryPreferences(textFieldDietaryPreferences.getText());
@@ -1013,8 +1033,14 @@ if(camperJList.getSelectedValue()!=null){
 				camper.setEmergencyContactRelationship2(textFieldContactRelationship2.getText());
 				camper.setEmergencyContactPhone1(textFieldPhone1.getText());
 				camper.setEmergencyContactPhone2(textFieldPhone2.getText());
-				camper.disordersList=temporaryDisorderList;
-				//The disorders list is now equal to the temporary list, and any disorders prior are now removed and reset to this list. 
+                                                                              
+                                                                          
+			                  if(disordersChanged==true){
+                                                                            camper.disordersList=temporaryDisorderList;}
+                                          
+                                                                  
+                                
+                                              //The disorders list is now equal to the temporary list, and any disorders prior are now removed and reset to this list. 
 				JOptionPane.showMessageDialog(null, "Changes Saved Successfully!");
 				frame.dispose();
 				campersModel.removeAllElements();

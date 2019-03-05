@@ -43,14 +43,22 @@ import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.apache.poi.ss.usermodel.DataFormatter;
 
+import org.apache.poi.xwpf.usermodel.XWPFDocument;
+import org.apache.poi.xwpf.usermodel.XWPFParagraph;
+import org.apache.poi.xwpf.usermodel.XWPFRun;
+
 import java.sql.*;  
 import java.sql.Connection;
 import java.sql.Statement;
 import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.apache.poi.xwpf.usermodel.LineSpacingRule;
+import org.apache.poi.xwpf.usermodel.UnderlinePatterns;
 
 public class Home extends JPanel implements Serializable
 
@@ -80,6 +88,7 @@ public class Home extends JPanel implements Serializable
                    private  JMenuItem updateDatabase;
                    private JMenuItem saveAs;
                    private   JMenuItem importCampersFromMySQL;
+                   private JMenuItem createMedicalReport;
                 
 
 	
@@ -148,24 +157,24 @@ public class Home extends JPanel implements Serializable
 	private JPanel bottomGridPanel;
 	private Component horizontalGlueBottom;
 	
-                   private int mySQLcampID;
-                   private int mySQLsessionID;
-                   private int mySQLorganizationID;
+                   private static int mySQLcampID;
+                   private static int mySQLsessionID;
+                   private static int mySQLorganizationID;
                    
                       private boolean databaseLinked;
 	
 	
-    public Home() throws ClassNotFoundException, InstantiationException, IllegalAccessException, UnsupportedLookAndFeelException, SQLException
+    public Home() throws ClassNotFoundException, InstantiationException, IllegalAccessException, UnsupportedLookAndFeelException, SQLException, IOException
     {
         UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsClassicLookAndFeel");
         
          //  licenseKeyGUI = new LicenseKeyGUI(this, true);
     	
-    	setTestCampers();
-    	setTestCabins();
-    	setTestDate();
+    	//setTestCampers();
+    	//setTestCabins();
+    	//setTestDate();
     	
-    	setTestCounselors();
+    	//setTestCounselors();
         
                 
         setLayout(new FlowLayout(FlowLayout.LEFT));
@@ -175,6 +184,7 @@ public class Home extends JPanel implements Serializable
                     JMenuBar mb= new JMenuBar();
                     JMenu menu1= new JMenu("File");
                     JMenu menu2= new JMenu("Database");
+                    JMenu menu3= new JMenu("Medical Report");
                      saveAs= new JMenuItem("Save As");
                     menu1.add(saveAs);
                      linkDatabase= new JMenuItem("Link Database");
@@ -185,8 +195,13 @@ public class Home extends JPanel implements Serializable
                     menu2.add(importCampersFromMySQL);
                     menu1.setBackground(Color.ORANGE);
                     menu2.setBackground(Color.ORANGE);
+                    menu3.setBackground(Color.ORANGE);
                     mb.add(menu1);
                     mb.add(menu2);
+                    mb.add(menu3);
+                    createMedicalReport= new JMenuItem("Generate Medical Report");
+                    menu3.add(createMedicalReport);
+                    
                     
                 
                     
@@ -469,7 +484,7 @@ public class Home extends JPanel implements Serializable
     
  
  
-    public static void createAndShowGUI() throws ClassNotFoundException, InstantiationException, IllegalAccessException, UnsupportedLookAndFeelException, SQLException
+    public static void createAndShowGUI() throws ClassNotFoundException, InstantiationException, IllegalAccessException, UnsupportedLookAndFeelException, SQLException, IOException
     {
         JFrame frame = new JFrame("Cabin Assigner Pro");
         frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
@@ -592,7 +607,7 @@ public void campInformation(){
 public void noCabinsError(){
     JOptionPane.showMessageDialog(null, "You have not created any cabins yet!");
 }
-private void setTestCampers() throws SQLException, ClassNotFoundException{
+private void setTestCampers() throws SQLException, ClassNotFoundException, IOException{
 	//Method is only used when testing is being done. 
 	
 	Camper camper1= new Camper("Mann", "Terrance", 'M');
@@ -650,7 +665,8 @@ private void setTestCampers() throws SQLException, ClassNotFoundException{
        
               databaseLink(1, "6329");
              campSessionLink(1);
-               
+             
+             
                  
                  
           
@@ -1045,6 +1061,24 @@ private void addActionListeners(){
                 }
             
         }
+        
+           });
+           
+           createMedicalReport.addActionListener(new ActionListener(){
+               public void actionPerformed(ActionEvent e){
+                   try {
+                       writeMedicalReport();
+                   } catch (IOException ex) {
+                       Logger.getLogger(Home.class.getName()).log(Level.SEVERE, null, ex);
+                   }
+               }
+           });
+           
+           saveAs.addActionListener(new ActionListener(){
+               @Override
+               public void actionPerformed(ActionEvent e){
+                     saveCamp();
+               }
            });
 }
 
@@ -1090,6 +1124,10 @@ private static void saveCamp(){
          oos.writeObject(EditDeleteCamper.camperDeletedList);
          oos.writeObject(EditDeleteCounselor.counselorDeletedList);
          oos.writeObject(DeleteCabin.cabinDeleted);
+         oos.writeObject(mySQLcampID);
+         oos.writeObject(mySQLsessionID);
+         oos.writeObject(mySQLorganizationID);
+        
         
          oos.close();
          fos.close();
@@ -1140,6 +1178,10 @@ private void readCamp() throws ClassNotFoundException {
                                      EditDeleteCamper.camperDeletedList= (ArrayList) ois.readObject();
                                      EditDeleteCounselor.counselorDeletedList= (ArrayList) ois.readObject();
                                      DeleteCabin.cabinDeleted= (ArrayList) ois.readObject();
+                                     
+                                     mySQLcampID= (int) ois.readObject();
+                                     mySQLsessionID= (int) ois.readObject();
+                                     mySQLorganizationID=(int) ois.readObject();
 		
 		} catch (FileNotFoundException e) {
 		
@@ -1175,9 +1217,12 @@ private static void saveSelectedCamp(){
 	     oos.writeObject(CampInformation.sloganOfCamp);
 	     oos.writeObject(CampInformation.campDateString);
              
-                        oos.writeObject(EditDeleteCamper.camperDeletedList);
-                        oos.writeObject(EditDeleteCounselor.counselorDeletedList);
-                        oos.writeObject(DeleteCabin.cabinDeleted);
+                       oos.writeObject(EditDeleteCamper.camperDeletedList);
+                       oos.writeObject(EditDeleteCounselor.counselorDeletedList);
+                       oos.writeObject(DeleteCabin.cabinDeleted);
+                       oos.writeObject(mySQLcampID);
+                       oos.writeObject(mySQLsessionID);
+                        oos.writeObject(mySQLorganizationID);
 	     oos.close();
 	     fos.close();
 	     fileChanged=false;
@@ -2161,6 +2206,201 @@ private void updateDatabase() throws ClassNotFoundException, SQLException{
     
 }
 
+
+private void writeMedicalReport() throws IOException{
+    String fileName= JOptionPane.showInputDialog("Please enter a name for your word file ("
+            + "Warning: It will replace other files with the same name.  The current file being replaced must also not be open.)");
+    XWPFDocument document = new XWPFDocument();
+    FileOutputStream out = new FileOutputStream(
+                    new File(fileName+".docx"));
+    
+     Collections.sort(NewCamper.camperList, new Comparator<Camper>(){
+		    	public int compare(Camper c1, Camper c2){
+		    		
+		    		String lastName1= c1.getLastName();
+		    		String lastName2= c2.getLastName();
+		    		
+		    		int result= lastName1.compareToIgnoreCase(lastName2);
+		    		if(result!=0){
+		    			return result;
+		    		}
+		    		String firstName1= c1.getFirstName();
+		    		String firstName2= c2.getFirstName();
+		    		
+		    		return firstName1.compareToIgnoreCase(firstName2);
+		    	}
+		    });
+    
+    for(Camper camper:NewCamper.camperList){
+         XWPFParagraph paragraph = document.createParagraph();
+           XWPFParagraph paragraph2 = document.createParagraph();
+           XWPFParagraph paragraph3 = document.createParagraph();
+           XWPFParagraph paragraph4 = document.createParagraph();
+           XWPFParagraph paragraph5 = document.createParagraph();
+           XWPFParagraph paragraph6 = document.createParagraph();
+           XWPFParagraph paragraph7 = document.createParagraph();
+           XWPFParagraph paragraph8 = document.createParagraph();
+           XWPFParagraph paragraph9 = document.createParagraph();
+           XWPFParagraph paragraph10 = document.createParagraph();
+           XWPFParagraph paragraph11 = document.createParagraph();
+           XWPFParagraph paragraph12 = document.createParagraph();
+           XWPFParagraph paragraph13 = document.createParagraph();
+           XWPFParagraph paragraph14 = document.createParagraph();
+           XWPFParagraph paragraph15 = document.createParagraph();
+           XWPFParagraph paragraph16 = document.createParagraph();
+           XWPFParagraph paragraph17 = document.createParagraph();
+           XWPFParagraph paragraph18 = document.createParagraph();
+           XWPFParagraph paragraph19 = document.createParagraph();
+            XWPFParagraph paragraph20 = document.createParagraph();
+           XWPFParagraph paragraph21 = document.createParagraph();
+           XWPFParagraph paragraph22 = document.createParagraph();
+            XWPFRun run = paragraph.createRun();
+            run.setBold(true);
+            run.setFontSize(14);
+            XWPFRun run2 = paragraph2.createRun();
+            run2.setBold(true);
+            run2.setUnderline(UnderlinePatterns.SINGLE);
+            XWPFRun run3 = paragraph3.createRun();
+            XWPFRun run4 = paragraph4.createRun();
+             run4.setBold(true);
+            run4.setUnderline(UnderlinePatterns.SINGLE);
+            XWPFRun run5 = paragraph5.createRun();
+            XWPFRun run6 = paragraph6.createRun();
+            run6.setBold(true);
+            run6.setUnderline(UnderlinePatterns.SINGLE);
+            XWPFRun run7 = paragraph7.createRun();
+            XWPFRun run8 = paragraph8.createRun();
+            run8.setBold(true);
+            run8.setUnderline(UnderlinePatterns.SINGLE);
+            XWPFRun run9 = paragraph9.createRun();
+            XWPFRun run10 = paragraph10.createRun();
+            run10.setBold(true);
+            run10.setUnderline(UnderlinePatterns.SINGLE);
+            XWPFRun run11 = paragraph11.createRun();
+         
+            XWPFRun run12 = paragraph12.createRun();
+            run12.setBold(true);
+            run12.setUnderline(UnderlinePatterns.SINGLE);
+            XWPFRun run13 = paragraph13.createRun();
+      
+            XWPFRun run14 = paragraph14.createRun();
+            run14.setBold(true);
+            run14.setUnderline(UnderlinePatterns.SINGLE);
+            XWPFRun run15 = paragraph15.createRun();
+            XWPFRun run16 = paragraph16.createRun();
+            run16.setBold(true);
+            run16.setUnderline(UnderlinePatterns.SINGLE);
+            XWPFRun run17 = paragraph17.createRun();
+          
+            XWPFRun run18 = paragraph18.createRun();
+            run18.setBold(true);
+            run18.setUnderline(UnderlinePatterns.SINGLE);
+            XWPFRun run19 = paragraph19.createRun();
+            XWPFRun run20 = paragraph20.createRun();
+            run20.setBold(true);
+            run20.setUnderline(UnderlinePatterns.SINGLE);
+            XWPFRun run21 = paragraph21.createRun();
+            XWPFRun run22 = paragraph22.createRun();
+           
+          
+            
+            run.setText("Camper Medical Report");
+            
+            run2.setText("Name");
+         
+            run3.setText(camper.getLastName()+", "+ camper.getFirstName());
+            
+            run4.setText("Date of Birth");
+            
+            run5.setText(camper.getDob());
+            
+            run6.setText("Gender:");
+            
+        switch (camper.getGender()) {
+            case 'M':
+                run7.setText("Male");
+                break;
+            case 'F':
+                run7.setText("Female");
+                break;
+            default:
+                run7.setText("Other");
+                break;
+        }
+        run8.setText("Cabin");
+        
+       if(camper.getCabin()==null){
+           run9.setText("Unassigned");
+       }
+       else{
+           run9.setText(camper.getCabin().getCabinName());
+       }
+       
+       run10.setText("Diagnoses/Medical Conditions");
+       
+        if((camper.getDisorders()!=null)&&(camper.getDisorders().length()!=0)&&(camper.disordersList.isEmpty()==true)){
+            run11.setText(camper.getDisorders());
+        }
+        else if(camper.disordersList.isEmpty()==false){
+            if((camper.getDisorders()!=null)&&(camper.getDisorders().length()!=0)){
+            run11.setText(camper.disordersList.toString().replace("[", "").replace("]","")+", "+camper.getDisorders());}
+            else{
+                 run11.setText(camper.disordersList.toString().replace("[", "").replace("]",""));
+            }
+        }
+        else{
+            run11.setText("None Reported");
+        }
+        
+           run12.setText("Medications");
+        if((camper.getMedications()==null)||(camper.getMedications().length()==0)){
+           run13.setText("None Reported");
+         }
+        else{
+        run13.setText(camper.getMedications());}
+        
+       
+        run14.setText("Allergies");
+         if((camper.getAllergies()==null)||(camper.getAllergies().length()==0)){
+             run15.setText("None Reported");
+         }
+         else{
+        run15.setText(camper.getAllergies());
+         }
+        
+          run16.setText("Dietary Preferences/Restrictions");
+          
+         if((camper.getDietaryPreferences()==null)||(camper.getDietaryPreferences().length()==0)){
+           run17.setText("None Reported");
+         }
+         else{
+        run17.setText(camper.getDietaryPreferences());
+         }
+        run18.setText("Special Needs/Accommodations/History");
+        
+        if((camper.getSpecialNeeds()==null)||(camper.getSpecialNeeds().length()==0)){
+            run19.setText("None Reported");
+        }
+        else{
+        run19.setText(camper.getSpecialNeeds());
+        }
+        
+        run20.setText("Emergency Contact Information");
+        
+        if((camper.getEmergencyContact1()!=null)&&(camper.getEmergencyContact1().length()>0)){
+        run21.setText("Name: "+camper.getEmergencyContact1()+ "   Relationship: " +camper.getEmergencyContactRelationship1()+"   "
+                + "  Phone: " + camper.getEmergencyContactPhone1());}
+       
+       if((camper.getEmergencyContact2()!=null)&&(camper.getEmergencyContact2().length()>0))
+        run22.setText("Name: "+ camper.getEmergencyContact2()+ "    Relationship: "+camper.getEmergencyContactRelationship2()+
+                "   Phone: "+ camper.getEmergencyContactPhone2());
+       
+            
+            paragraph.setPageBreak(true);
+            
+    }
+     document.write(out);
+}
  
 }
 

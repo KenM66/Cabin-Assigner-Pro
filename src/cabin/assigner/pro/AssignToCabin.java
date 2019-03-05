@@ -720,27 +720,26 @@ public class AssignToCabin extends JPanel implements Serializable {
 		private void selectionButton(){
 	//If there are not enough or too many counselors assigned to cabin, 
 	// a message confirm dialog will appear. 
-			if(currentCabin== null){
-              selectCabin();
-				  }
-				else if(currentCabin.getNumberOfCounselors()>counselorAddedJList.getModel().getSize()){
-					int response= JOptionPane.showConfirmDialog(null, 
-					"Not enough counselors are presently assigned to this cabin, are you sure you wish to proceed?"
-					+ " If yes, you can still make changes later.","WARNING", JOptionPane.YES_NO_OPTION);
+			//if(currentCabin== null){
+                                                                      
+				// if(currentCabin.getNumberOfCounselors()>counselorAddedJList.getModel().getSize()){
+					//int response= JOptionPane.showConfirmDialog(null, 
+					//"Not enough counselors are presently assigned to this cabin, are you sure you wish to proceed?"
+					//+ " If yes, you can still make changes later.","WARNING", JOptionPane.YES_NO_OPTION);
 					
-					if(response== JOptionPane.YES_OPTION){
-						selectCabin();
-					}
-					else{
-						comboBox.setSelectedItem(currentCabin);
-					
+					//if(response== JOptionPane.YES_OPTION){
+				
+					//}
+					//else{
+						
 					
 					
-					return; }
-				}
-				else{
+					
+					//return; }
+				//}
+				//else{
 					selectCabin();
-					}
+					//}
 		}
 		
 		private void openWindow(){
@@ -761,23 +760,12 @@ public class AssignToCabin extends JPanel implements Serializable {
 			 
 			 buttonClose.addActionListener(new ActionListener() {
 			 public void actionPerformed(ActionEvent arg0) {
-			if(currentCabin!=null){
-				 if(counselorAddedJList.getModel().getSize()>=currentCabin.getNumberOfCounselors()){
+		
+			
 	        		
-	        	 frame.dispose();}
-				 else{
-					int response= JOptionPane.showConfirmDialog(null, "There are not currently enough counselors"
-							+ " assigned to this cabin?  Are you sure you wish to close?  If so, you can still make changes later.");
-					if(response==JOptionPane.YES_OPTION){
-						frame.dispose();
-					}
-					else{
-						return;
-					}
-				 }}
-			else{
-				frame.dispose();
-			}
+	        	                               frame.dispose();
+				 
+				 
 			
 			
 			 } });
@@ -949,9 +937,36 @@ public class AssignToCabin extends JPanel implements Serializable {
 		        	}
 		        });
 			  buttonPrintCabinList.addActionListener(new ActionListener() {
+ //if(currentCabin== null){
+                                                                      
+				// if(currentCabin.getNumberOfCounselors()>counselorAddedJList.getModel().getSize()){
+					//int response= JOptionPane.showConfirmDialog(null, 
+					//"Not enough counselors are presently assigned to this cabin, are you sure you wish to proceed?"
+					//+ " If yes, you can still make changes later.","WARNING", JOptionPane.YES_NO_OPTION);
+					
+					//if(response== JOptionPane.YES_OPTION){
+				
+					//}
+					//else{
+						
+					
+					
+					
+					//return; }                             
+                              
+                              
 		        	public void actionPerformed(ActionEvent arg0) {
 		        		
 		        		if(currentCabin!=null){
+                                            
+                                                                       if(currentCabin.getNumberOfCounselors()>counselorAddedJList.getModel().getSize()){
+					int response= JOptionPane.showConfirmDialog(null, 
+					"Not enough counselors are presently assigned to this cabin, are you sure you wish to proceed with printing the list?"
+					+ " If yes, you can still make changes later.","WARNING", JOptionPane.YES_NO_OPTION);
+					
+					if(response== JOptionPane.NO_OPTION){
+				                             return;
+					}}
 		        			try {
 								cabinList(currentCabin);
 							} catch (BadLocationException e) {
